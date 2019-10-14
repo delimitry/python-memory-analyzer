@@ -22,10 +22,12 @@ def read(stream, size):
 ###############################################################################
 
 class Py_ssize_t(object):
-    def read(self, stream):
-        return read(stream, self.get_size())
+    @staticmethod
+    def read(stream):
+        return read(stream, Py_ssize_t.get_size())
 
-    def get_size(self):
+    @staticmethod
+    def get_size():
         return ctypes.sizeof(ctypes.c_size_t)
 
     @staticmethod
@@ -33,10 +35,13 @@ class Py_ssize_t(object):
         return '{0} ({0:016x})'.format(value)
 
 class _typeobject_p(object):
-    def read(self, stream):
-        return read(stream, self.get_size())
+    """Address of _typeobject"""
+    @staticmethod
+    def read(stream):
+        return read(stream, _typeobject_p.get_size())
 
-    def get_size(self):
+    @staticmethod
+    def get_size():
         return ctypes.sizeof(ctypes.c_void_p)
 
     @staticmethod
@@ -45,10 +50,12 @@ class _typeobject_p(object):
 
 
 class _long(object):
-    def read(self, stream):
-        return read(stream, self.get_size())
+    @staticmethod
+    def read(stream):
+        return read(stream, _long.get_size())
 
-    def get_size(self):
+    @staticmethod
+    def get_size():
         return ctypes.sizeof(ctypes.c_long)
 
     @staticmethod
@@ -57,10 +64,12 @@ class _long(object):
 
 
 class _int(object):
-    def read(self, stream):
-        return read(stream, self.get_size())
+    @staticmethod
+    def read(stream):
+        return read(stream, _int.get_size())
 
-    def get_size(self):
+    @staticmethod
+    def get_size():
         return ctypes.sizeof(ctypes.c_int)
 
     @staticmethod
@@ -69,7 +78,8 @@ class _int(object):
 
 
 class _char_p(object):
-    def read(self, stream, length=None):
+    @staticmethod
+    def read(stream, length=None):
         if length:
             return stream.read(length)
         else:
@@ -85,6 +95,7 @@ class _char_p(object):
                 out += b
             return out
 
+    @staticmethod
     def get_size(self):
         return 1  # null character ('\x00')
 
@@ -120,7 +131,7 @@ class PyStringObject(object):
         result = {}
         for field in cls.fields:
             field_type, field_name = field
-            result[field_name] = field_type().read(stream)
+            result[field_name] = field_type.read(stream)
         return cls(**result)
 
     @classmethod

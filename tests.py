@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
     Test python memory analyzer
     """
 
-    def test_search_str_py27(self):
+    def test_py_str_read_py27(self):
         mem_dump = BytesIO(
             b'\x01\x00\x00\x00\x00\x00\x00\x00`\x9c\x8f\x00\x00\x00\x00\x00'
             b'\x03\x00\x00\x00\x00\x00\x00\x00\xd7\xb2x\xa1P`*\x14'

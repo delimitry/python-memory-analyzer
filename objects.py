@@ -236,6 +236,19 @@ class PyStringObject(object):
 # CPython 3.7
 ###############################################################################
 
+def get_kind(val):
+    kind = 1
+    for x in val:
+        if 0x00 <= ord(x) <= 0xff:  # but ASCII in [0x00..0x7f] not to 0xff
+            kind = max(kind, 1)
+        elif 0xff < ord(x) <= 0xffff:
+            kind = max(kind, 2)
+        elif 0xffff < ord(x) <= 0x10ffff:
+            kind = max(kind, 4)
+            return kind
+    return kind
+
+
 def is_ascii(value):
     return all(0x00 <= ord(x) <= 0x7f for x in value)
 

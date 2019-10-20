@@ -3,10 +3,34 @@
 
 from __future__ import print_function, unicode_literals
 
+import ctypes
 import struct
 import unittest
 from io import BytesIO
 from objects import PyStringObject, PyCommonUnicodeObject, PY3
+
+
+def sizeof_x64_mock(arg):
+    if arg in (
+        ctypes.c_size_t,
+        ctypes.c_void_p,
+        ctypes.c_long,
+        ctypes.c_char_p,
+        ctypes.c_wchar_p,
+    ):
+        return 8
+    elif arg == ctypes.c_int:
+        return 4
+    return 8
+
+
+def ctypes_x64_mock(func):
+    def wrapper(*args, **kwargs):
+        orig_sizeof = ctypes.sizeof
+        ctypes.sizeof = sizeof_x64_mock
+        func(*args, **kwargs)
+        ctypes.sizeof = orig_sizeof
+    return wrapper
 
 
 class Test(unittest.TestCase):
@@ -14,6 +38,7 @@ class Test(unittest.TestCase):
     Test python memory analyzer
     """
 
+    @ctypes_x64_mock
     def test_py_str_read_py27(self):
         mem_dump = BytesIO(
             b'\x01\x00\x00\x00\x00\x00\x00\x00`\x9c\x8f\x00\x00\x00\x00\x00'
@@ -28,6 +53,7 @@ class Test(unittest.TestCase):
         self.assertEqual(obj.ob_sstate, 1)
         self.assertEqual(obj.ob_sval.decode('utf-8'), 'asd')
 
+    @ctypes_x64_mock
     def test_py_unicode_read_py37(self):
         mem_dump = BytesIO(
             b'\x01\x00\x00\x00\x00\x00\x00\x00\xc0\x92\xa4\x00\x00\x00\x00\x00'
